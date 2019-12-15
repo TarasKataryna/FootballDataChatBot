@@ -2,4 +2,8 @@ import application_settings as app_set
 from telegran_bot import TelegramBot
 
 if __name__ == '__main__':
-        TelegramBot(app_set.TELEGRAM_BOT_TOKEN).listen()
+        football_data_settings = {
+            'competitions_url':app_set.COMPETITIONS_URL,
+            'api_token': app_set.API_URL,
+            'team_url':app_set.TEAM_URL}
+        TelegramBot(app_set.TELEGRAM_BOT_TOKEN, app_set.LUIS_API, football_data_settings).listen()
