@@ -12,3 +12,5 @@ COMPETITIONS_STANDING_URL = 'https://api.football-data.org/v2/competitions/{}/st
 
 COMPETITIONS_MATCHES_URL = 'https://api.football-data.org/v2/competitions/{}/matches'
 
+BASE_DIR = '.'
+

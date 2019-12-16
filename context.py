@@ -9,8 +9,8 @@ from pyswip.prolog import PrologError
 from application_settings import BASE_DIR
 
 DEFAULT_RULES = [
-	'''get_user_competitions(UserId, CompetitionId, CompetitionName) :- 
-		competition(CompetitionId, CompetitionName), 
+	'''get_user_competitions(UserId, CompetitionId) :- 
+		competition(CompetitionId), 
 		user_competition(UserId, CompetitionId).''',
 	'% section.facts'
 ]
@@ -18,6 +18,8 @@ DEFAULT_RULES = [
 USER_COMPETITION_FACT = 'user_competition({}, {}).'
 
 COMPETITION_FACT = 'competition({}, {}).'
+
+COMPETITION_FACT2 = 'competition({}).'
 
 TIMESTAMP_FORMAT = '%d-%b-%Y (%H:%M:%S.%f)'
 
@@ -48,14 +50,14 @@ class PrologMT(pyswip.Prolog):
 
 
 class PrologKb:
-	def __init__(self, competitions, file_path='{}/db.pro'.format(BASE_DIR)):
+	def __init__(self, file_path='{}/db.pro'.format(BASE_DIR)):
 		assert file_path is not None
 		assert len(competitions) != 0 if competitions else False
 		self.__file_path = file_path.replace('\\', '/')		
 		self.__kb_file = open(self.__file_path, 'a+')
 		self.__guard = RLock()
 		self.__kb = PrologMT()
-		self.__prepare_file(competitions)		
+		self.__prepare_file()		
 		self.__kb.consult(self.__file_path)
 
 	def __file_is_empty(self):
@@ -69,13 +71,11 @@ class PrologKb:
 	def __del__(self):
 		self.__kb_file.close()
 
-	def __prepare_file(self, competitions):
+	def __prepare_file(self):
 		if not self.__file_is_empty():
 			return
 		text_to_file = '\n'.join(DEFAULT_RULES)+'\n'
 		self.__kb_file.write(text_to_file)
-		compStr = '\n' + '\n'.join([COMPETITION_FACT.format(comp[0], comp[1]) for comp in competitions])
-		self.__write(compStr)
 
 	def __call(self, query):
 		try:
@@ -102,27 +102,35 @@ class PrologKb:
 		return len(userComps) != 0 if userComps else False
 
 	def __exists_c(self, competitionId):
-		comps = self.__call(COMPETITION_FACT.format(competitionId, 'CName'))
-		return len(comps) !=0 if comps else False
+		cond = self.__call(COMPETITION_FACT2.format(competitionId))
+		return comp
 
-	def add_user_competition(self, userId, competitionId):
-		if (not self.__exists_c(competitionId)) | self.__exists_u_c(userId, competitionId):
+	def __add_competition(self, competitionId):
+		compStr = '\n' + COMPETITION_FACT2.format(competitionId)
+		self.__write(compStr)
+
+	def add_user_competition(self, userId, competitionId, Con):
+		if (self.__exists_u_c(userId, competitionId):
 			return False
+		
+		if not self.__exists_c(competitionId)):
+			self.__add_competition(competitionId)
+		
 		compStr = '\n' + USER_COMPETITION_FACT.format(userId, competitionId)
 		self.__write(compStr)
 		return True
 
 	def get_competitions(self):
-		competitions = self.__call(COMPETITION_FACT.format('Id', 'Name'))
+		competitions = self.__call(COMPETITION_FACT2.format('Id'))
 		if not competitions:
 			return []
-		return list(map(lambda x: (x['Id'], x['Name']), competitions))
+		return list(map(lambda x: x['Id'], competitions))
 	
 	def get_user_competitions(self, userId):
-		userComps = self.__call('get_user_competitions({}, CompetitionId, CompetitionName)'.format(userId))
+		userComps = self.__call('get_user_competitions({}, CompetitionId)'.format(userId))
 		if not userComps:
 			return []
-		return list(map(lambda x: (x['CompetitionId'], x['CompetitionName']), userComps))			
+		return list(map(lambda x: x['CompetitionId'], userComps))			
 	
 
 # Simple driver program.
