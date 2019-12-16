@@ -36,7 +36,7 @@ class FootballData:
         result = {'matches':[]}
         try:
             for match in r['matches']:
-                result['matches'].add({
+                result['matches'].append({
                     'away_team_name':match['awayTeam']['name'],
                     'away_team_id':match['awayTeam']['id'],
                     'away_team_score':match['score']['fullTime']['awayTeam'],

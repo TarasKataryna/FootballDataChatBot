@@ -32,12 +32,23 @@ class TelegramBot:
         elif intent == 'SeasonInfo':
             res_json = self.handle_season_info_intent(user_info)
             return self.handle_response(res_json)
+        elif intent == 'MatchesInfo':
+            res_json = self.handle_matches_info_intent(user_info)
+            return self.handle_response(res_json)
+
         
     def handle_response(self, response):
-        if hasattr(response, 'message'):
+        if 'message' in response:
             return response.message
-        else:
+        elif 'team_name' in response:
             return response['team_name'] + '(id = {})'.format(response['team_id'])
+        elif 'matches' in response:
+            return_string = ''
+            for i in response['matches']:
+                return_string = return_string + i['home_team_name'] + ' ({}) '.format(i['home_team_id']) + str(i['home_team_score']) + ' - ' + str(i['away_team_score']) + ' ' + i['away_team_name'] + ' ({})\n'.format(i['away_team_id'])
+            return return_string
+
+
 
 
     def get_user_info(self, user_id):
@@ -45,7 +56,11 @@ class TelegramBot:
          return {'user_name': 'Taras', 'user_id':user_id, 'best_comp_id': '2021', 'best_comp_name': 'England'} 
 
     def handle_season_info_intent(self, user_info):
-        if hasattr(user_info, 'best_comp_id'):
+        if 'best_comp_id' in user_info:
+            return self.data_api_wrapper.get_competition_winner_in_season('2021', 2018)
+    
+    def handle_matches_info_intent(self, user_info):
+        if 'best_comp_id' in user_info:
             return self.data_api_wrapper.get_matches(user_info['best_comp_id'])
         else:
             #ask user about his best competition
