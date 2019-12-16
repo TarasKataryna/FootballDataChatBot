@@ -10,3 +10,5 @@ API_URL = '9c8a5d31f5c64b809e720bb33d7a2a96'
 
 COMPETITIONS_STANDING_URL = 'https://api.football-data.org/v2/competitions/{}/standing/'
 
+COMPETITIONS_MATCHES_URL = 'https://api.football-data.org/v2/competitions/{}/matches'
+
