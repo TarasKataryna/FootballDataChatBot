@@ -49,4 +49,16 @@ class FootballData:
             return result
 
 
-        
+    def get_team_info(self, team_id):
+        headers = self.add_request_headers()
+        resp = requests.get(self.team_api_url.format(team_id), headers=headers).json()
+        result = {'team': [], 'name': resp['name']}
+        try:
+            for member in resp['squad']:
+                result['team'].append({
+                    'member_name': member['name'],
+                    'member_position': member['position']
+                })
+            return result
+        except:
+            return result
