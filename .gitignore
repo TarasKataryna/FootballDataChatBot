@@ -151,4 +151,5 @@ application_settings.py
 # Ignore all local history of files
 .history
 
+db.pro
 # End of https://www.gitignore.io/api/visualstudiocode

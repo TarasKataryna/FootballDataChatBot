@@ -52,7 +52,6 @@ class PrologMT(pyswip.Prolog):
 class PrologKb:
 	def __init__(self, file_path='{}/db.pro'.format(BASE_DIR)):
 		assert file_path is not None
-		assert len(competitions) != 0 if competitions else False
 		self.__file_path = file_path.replace('\\', '/')		
 		self.__kb_file = open(self.__file_path, 'a+')
 		self.__guard = RLock()
@@ -75,7 +74,7 @@ class PrologKb:
 		if not self.__file_is_empty():
 			return
 		text_to_file = '\n'.join(DEFAULT_RULES)+'\n'
-		self.__kb_file.write(text_to_file)
+		self.__write(text_to_file)
 
 	def __call(self, query):
 		try:
@@ -103,17 +102,17 @@ class PrologKb:
 
 	def __exists_c(self, competitionId):
 		cond = self.__call(COMPETITION_FACT2.format(competitionId))
-		return comp
+		return len(cond) != 0 if cond else False
 
 	def __add_competition(self, competitionId):
 		compStr = '\n' + COMPETITION_FACT2.format(competitionId)
 		self.__write(compStr)
 
-	def add_user_competition(self, userId, competitionId, Con):
-		if (self.__exists_u_c(userId, competitionId):
+	def add_user_competition(self, userId, competitionId):
+		if self.__exists_u_c(userId, competitionId):
 			return False
 		
-		if not self.__exists_c(competitionId)):
+		if not self.__exists_c(competitionId):
 			self.__add_competition(competitionId)
 		
 		compStr = '\n' + USER_COMPETITION_FACT.format(userId, competitionId)
@@ -137,15 +136,13 @@ class PrologKb:
 # TODO: will be removed in future.
 def main():
 
-	competitions = [(1, '\'Premier League\''), (2, '\'Asdads\'')]
-
-	kb = PrologKb(competitions)
+	kb = PrologKb()
 	compets = kb.get_competitions()
 	kb.add_user_competition(22, 1)
 	kb.add_user_competition(22, 1)
 	kb.add_user_competition(23, 2)
 	kb.add_user_competition(23, 1)
-	# kb.add_user_competition(22, 2)
+	kb.add_user_competition(22,2)
 	uComps = kb.get_user_competitions(22)
 	uComps = kb.get_user_competitions(23)
 
